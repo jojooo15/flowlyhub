@@ -15,9 +15,22 @@ FlowlyHub adalah aplikasi kasir digital berbasis web untuk UMKM kuliner. Proyek 
 - Analitik performa produk
 - Profil pengguna
 
+## Tampilan
+
+<p>
+  <img src="docs/screenshots/01-login.png" width="280" alt="Login">
+  <img src="docs/screenshots/02-dashboard.png" width="280" alt="Dashboard">
+  <img src="docs/screenshots/03-stok-barang.png" width="280" alt="Stok barang">
+</p>
+<p>
+  <img src="docs/screenshots/04-absensi.png" width="280" alt="Absensi">
+  <img src="docs/screenshots/05-riwayat.png" width="280" alt="Riwayat">
+  <img src="docs/screenshots/06-laporan.png" width="280" alt="Laporan">
+</p>
+
 ## Teknologi
 
-React 18, Vite, React Router 7, Material UI 7, jsPDF + jspdf-autotable, SheetJS (xlsx), file-saver, date-fns, dayjs
+HTML, CSS, JavaScript, React 18, Vite, React Router 7, Material UI 7, jsPDF + jspdf-autotable, SheetJS (xlsx), file-saver, date-fns, dayjs
 
 ## Menjalankan
 
