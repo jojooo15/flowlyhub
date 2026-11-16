@@ -1,0 +1,337 @@
+.attendance {
+  padding: 32px;
+  background-color: #F8F9FA;
+  min-height: 100vh;
+  margin-left: 80px;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.expanded ~ .attendance {
+  margin-left: 280px;
+}
+
+.attendance-header {
+  margin-bottom: 32px;
+}
+
+.attendance-header .title {
+  margin-bottom: 24px;
+}
+
+.attendance-header h1 {
+  font-size: 24px;
+  color: #333333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.date-range {
+  color: #666666;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.add-button, .isi-kehadiran-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.add-button {
+  background-color: #31456A;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #243550;
+}
+
+.isi-kehadiran-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.isi-kehadiran-button:hover {
+  background-color: #388E3C;
+}
+
+.filters {
+  margin-bottom: 24px;
+}
+
+.search-box {
+  position: relative;
+  max-width: 300px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border: 1px solid #EEEEEE;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #31456A;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666666;
+}
+
+.attendance-table {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.attendance-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.attendance-table th {
+  background-color: #F8F9FA;
+  font-weight: 600;
+  color: #666666;
+}
+
+.attendance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.attendance-table tr:hover td {
+  background-color: #F8F9FA;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.on-time {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+.status-badge.late {
+  background-color: #FFEBEE;
+  color: #C62828;
+}
+
+.source-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.source-badge.form {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.source-badge.csv {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #31456A;
+  border: none;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.export-button:hover {
+  background-color: #243550;
+}
+
+@media (max-width: 768px) {
+  .attendance {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .sidebar.expanded ~ .attendance {
+    margin-left: 0;
+  }
+
+  .attendance-header h1 {
+    font-size: 20px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .add-button, 
+  .isi-kehadiran-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  
+  .search-box {
+    max-width: none;
+  }
+  
+  .search-box input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 14px 16px 14px 40px;
+  }
+  
+  .attendance-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .attendance-table table {
+    min-width: 600px;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .export-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance {
+    padding: 12px;
+  }
+  
+  .attendance-header h1 {
+    font-size: 18px;
+  }
+  
+  .search-box input {
+    padding: 12px 12px 12px 36px;
+  }
+  
+  .search-icon {
+    left: 12px;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+    .add-button, 
+  .isi-kehadiran-button,
+  .export-button {
+    padding: 12px 16px;
+  }
+}
+
+/* Success and Error Messages */
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.error-message button:hover {
+  background: #c82333;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.success-message button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.success-message button:hover {
+  background: #218838;
+}

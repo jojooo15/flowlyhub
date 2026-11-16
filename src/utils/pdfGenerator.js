@@ -208,15 +208,28 @@ export const generateAttendanceReport = (attendanceData, params, storeProfile) =
 };
 
 /**
- * Fungsi untuk membuat laporan bulanan
+ * Fungsi untuk memvalidasi data laporan sebelum membuat PDF
+ * @param {array} data - Data laporan
+ * @param {string} reportType - Jenis laporan
+ */
+const validateReportData = (data, reportType) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error(`Data untuk laporan ${reportType} tidak valid atau kosong.`);
+  }
+};
+
+/**
+ * Fungsi untuk membuat laporan bulanan dengan data yang lebih rinci
  * @param {object} reportData - Data laporan bulanan
  * @param {object} params - Parameter laporan (bulan, tahun)
  * @param {object} storeProfile - Informasi toko
  * @returns {jsPDF} - Objek PDF yang siap diunduh
  */
 export const generateMonthlyReport = (reportData, params, storeProfile) => {
+  validateReportData(reportData, 'bulanan');
+
   const doc = new jsPDF();
-  
+
   // Header laporan
   const monthNames = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -224,13 +237,29 @@ export const generateMonthlyReport = (reportData, params, storeProfile) => {
   ];
   const subtitle = `Bulan: ${monthNames[params.month - 1]} ${params.year}`;
   addReportHeader(doc, 'LAPORAN BULANAN', subtitle, storeProfile);
-  
-  // Implementasikan sesuai kebutuhan laporan bulanan
-  // ...
-  
+
+  // Tabel data laporan bulanan
+  const tableColumn = ['No', 'Item Terlaris', 'Total Penjualan (Rp)', 'Total Transaksi'];
+  const tableRows = reportData.map((item, index) => [
+    index + 1,
+    item.bestSellingItem,
+    item.totalSales.toLocaleString('id-ID'),
+    item.totalTransactions
+  ]);
+
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 60,
+    theme: 'grid',
+    styles: { fontSize: 8, cellPadding: 2 },
+    headStyles: { fillColor: [66, 66, 66], textColor: [255, 255, 255] },
+    alternateRowStyles: { fillColor: [245, 245, 245] }
+  });
+
   // Footer laporan
   addReportFooter(doc);
-  
+
   return doc;
 };
 

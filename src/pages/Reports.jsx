@@ -1,283 +1,350 @@
-import { useState } from 'react';
-import { FaDownload, FaChartLine, FaChartBar, FaChartPie } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaDownload, FaPlus } from 'react-icons/fa';
+import Header from '../components/Header';
+import CustomDatePicker from '../components/CustomDatePicker';
+import LoadingSpinner from '../components/LoadingSpinner';
+import AddTransactionOverlay from '../components/AddTransactionOverlay';
+import api from '../services/api';
 import '../styles/Reports.css';
 
 const Reports = () => {
-  const [reportType, setReportType] = useState('sales');
-  const [dateRange, setDateRange] = useState({
-    startDate: '2025-05-01',
-    endDate: '2025-05-21'
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedPeriod, setSelectedPeriod] = useState('hari-ini');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reportData, setReportData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+
+  const fetchReportData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+
+      const response = await api.reports.getTransactions({
+        startDate: startDateStr,
+        endDate: endDateStr
+      });
+      
+      if (response.success) {
+        setReportData(response.data);
+        setTransactions(response.data.transactions || []);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      console.error('Error fetching report data:', err);
+      setError('Gagal memuat data laporan. Pastikan backend server berjalan.');
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    updateDateRange(selectedPeriod);
+  }, [selectedPeriod]);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
+
+  // Calculate summary data from actual transactions
+  const summaryData = {
+    totalSales: reportData?.summary?.income || transactions
+      .filter(t => t.jenis_transaksi === 'Pemasukan')
+      .reduce((sum, t) => sum + t.jumlah, 0),
+    totalTransactions: transactions.length,
+    netIncome: reportData?.summary?.netIncome || transactions
+      .reduce((sum, t) => t.jenis_transaksi === 'Pemasukan' ? sum + t.jumlah : sum - t.jumlah, 0),
+    topProduct: reportData?.topCategory || 'N/A'
+  };
+
+  const updateDateRange = (period) => {
+    const today = new Date();
+    console.log(today);
+    
+    switch (period) {
+      case 'hari-ini': {
+        const start = new Date(today);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(today);
+        end.setHours(23, 59, 59, 999);
+
+        setStartDate(start);
+        setEndDate(end);
+
+        break;
+      }
+      case 'bulanan': {
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        setStartDate(monthStart);
+        setEndDate(monthEnd);
+        break;
+      }
+      default: {
+        setStartDate(today);
+        setEndDate(today);
+      }
+    }
+  };
+
+  // Filter dan pencarian transaksi
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.keterangan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.kategori_transaksi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.jenis_transaksi.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = filterType === 'all' || 
+                         transaction.jenis_transaksi.toLowerCase() === filterType.toLowerCase();
+                         
+    return matchesSearch && matchesFilter;
   });
 
-  const salesData = [
-    { date: '2025-05-15', amount: 850000 },
-    { date: '2025-05-16', amount: 920000 },
-    { date: '2025-05-17', amount: 1250000 },
-    { date: '2025-05-18', amount: 1100000 },
-    { date: '2025-05-19', amount: 780000 },
-    { date: '2025-05-20', amount: 950000 },
-    { date: '2025-05-21', amount: 1250000 },
-  ];
+  const handleDownloadPDF = () => {
+    try {
+      const storeProfile = {
+        name: 'FlowlyHub Store',
+        address: 'Jl. Contoh No. 123',
+        phone: '0812-3456-7890'
+      };
 
-  const productSalesData = [
-    { product: 'Nasi Goreng', quantity: 85, revenue: 1275000 },
-    { product: 'Mie Goreng', quantity: 62, revenue: 744000 },
-    { product: 'Ayam Goreng', quantity: 45, revenue: 810000 },
-    { product: 'Soto Ayam', quantity: 38, revenue: 570000 },
-    { product: 'Es Teh', quantity: 120, revenue: 600000 },
-    { product: 'Es Jeruk', quantity: 95, revenue: 570000 },
-    { product: 'Kopi', quantity: 78, revenue: 546000 },
-  ];
+      const params = {
+        startDate: startDate.toLocaleDateString('id-ID'),
+        endDate: endDate.toLocaleDateString('id-ID')
+      };
 
-  const expenseData = [
-    { category: 'Bahan Baku', amount: 3500000 },
-    { category: 'Gaji Karyawan', amount: 2000000 },
-    { category: 'Sewa Tempat', amount: 1500000 },
-    { category: 'Listrik & Air', amount: 800000 },
-    { category: 'Transportasi', amount: 400000 },
-    { category: 'Lain-lain', amount: 300000 },
-  ];
-
-  const handleReportTypeChange = (e) => {
-    setReportType(e.target.value);
+      // Import fungsi PDF generator
+      import('../utils/pdfGenerator').then(({ generatePdf, downloadPdf }) => {
+        const doc = generatePdf('stock', filteredTransactions, params, storeProfile);
+        downloadPdf(doc, `Laporan_Transaksi_${new Date().toISOString().split('T')[0]}.pdf`);
+      }).catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error loading PDF generator:', error);
+        // eslint-disable-next-line no-alert
+        alert('Gagal mengunduh PDF. Silakan coba lagi.');
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error generating PDF:', error);
+      // eslint-disable-next-line no-alert
+      alert('Gagal mengunduh PDF. Silakan coba lagi.');
+    }
   };
 
-  const handleDateChange = (e) => {
-    const { name, value } = e.target;
-    setDateRange({
-      ...dateRange,
-      [name]: value
-    });
+  const handleDownloadExcel = () => {
+    try {
+      // Import fungsi Excel generator
+      import('../utils/excelGenerator').then(({ exportTransactionsToExcel }) => {
+        exportTransactionsToExcel(filteredTransactions);
+        // eslint-disable-next-line no-alert
+        alert('File Excel berhasil diunduh!');
+      }).catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error loading Excel generator:', error);
+        // eslint-disable-next-line no-alert
+        alert('Gagal mengunduh Excel. Silakan coba lagi.');
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error exporting to Excel:', error);
+      // eslint-disable-next-line no-alert
+      alert('Gagal mengunduh Excel. Silakan coba lagi.');
+    }
   };
 
-  const totalSales = salesData.reduce((sum, item) => sum + item.amount, 0);
-  const totalExpenses = expenseData.reduce((sum, item) => sum + item.amount, 0);
-  const profit = totalSales - totalExpenses;
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleTransactionAdded = async (transaction) => {
+    try {
+      const response = await api.reports.createTransaction(transaction);
+      
+      if (response.success) {
+        // Refresh data to get updated summary
+        fetchReportData();
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      console.error('Error adding transaction:', err);
+      throw err;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="reports">
+        <Header title="Laporan" />
+        <div className="reports-content">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="reports">
+        <Header title="Laporan" />
+        <div className="reports-content">
+          <div className="error-message">
+            <p>{error}</p>
+            <button onClick={() => setError(null)}>Tutup</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="reports-page">
-      <div className="reports-header">
-        <h1>Laporan Keuangan</h1>
-        <button className="download-button">
-          <FaDownload /> Unduh Laporan
-        </button>
-      </div>
+    <div className="reports">
+      <Header title="Laporan" />
+      <div className="reports-content">
+        <div className="reports-header">
+          <h1>Laporan</h1>
+          <div className="header-actions">
+            <button 
+              className="add-button"
+              onClick={() => setShowAddTransaction(true)}
+            >
+              <FaPlus /> Tambah Transaksi
+            </button>
+          </div>
+        </div>
 
-      <div className="report-filters">
-        <div className="report-type-selector">
-          <label>Jenis Laporan:</label>
-          <select value={reportType} onChange={handleReportTypeChange}>
-            <option value="sales">Laporan Penjualan</option>
-            <option value="products">Laporan Produk</option>
-            <option value="expenses">Laporan Pengeluaran</option>
-            <option value="profit">Laporan Laba/Rugi</option>
+        <div className="filters">
+          <div className="period-filter">
+            <label>Pilih Periode</label>
+            <select 
+              value={selectedPeriod} 
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+            >
+              <option value="hari-ini">Hari ini</option>
+              <option value="bulanan">Bulanan</option>
+            </select>
+          </div>
+          <div className="date-range">
+            {selectedPeriod === 'bulanan' ? (
+              <div className="date-range-container">
+                <CustomDatePicker
+                  selected={startDate}
+                  onChange={setStartDate}
+                  placeholderText="Tanggal Mulai"
+                  maxDate={endDate}
+                />
+                <span>sampai</span>
+                <CustomDatePicker
+                  selected={endDate}
+                  onChange={setEndDate}
+                  placeholderText="Tanggal Akhir"
+                  minDate={startDate}
+                />
+              </div>
+            ) : (
+              <CustomDatePicker
+                selected={selectedDate}
+                onChange={setSelectedDate}
+                placeholderText="Pilih tanggal"
+              />
+            )}
+          </div>
+        </div>
+
+      {/* Search and Filter Section */}
+      <div className="search-filter-section">
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Cari transaksi..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="filter-box">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="all">Semua Jenis</option>
+            <option value="pemasukan">Pemasukan</option>
+            <option value="pengeluaran">Pengeluaran</option>
           </select>
         </div>
-        <div className="date-range-selector">
-          <label>Periode:</label>
-          <input 
-            type="date" 
-            name="startDate" 
-            value={dateRange.startDate} 
-            onChange={handleDateChange} 
-          />
-          <span>hingga</span>
-          <input 
-            type="date" 
-            name="endDate" 
-            value={dateRange.endDate} 
-            onChange={handleDateChange} 
-          />
+      </div>
+
+      <div className="summary-cards">
+        <div className="summary-card">
+          <h3>Total Penjualan Hari Ini</h3>
+          <p>Rp {summaryData.totalSales.toLocaleString('id-ID')}</p>
+        </div>
+        <div className="summary-card">
+          <h3>Jumlah Transaksi</h3>
+          <p>{summaryData.totalTransactions}</p>
+        </div>
+        <div className="summary-card">
+          <h3>Pendapatan Bersih</h3>
+          <p>Rp {summaryData.netIncome.toLocaleString('id-ID')}</p>
+        </div>
+        <div className="summary-card">
+          <h3>Produk Terlaris</h3>
+          <p>{summaryData.topProduct}</p>
         </div>
       </div>
 
-      <div className="report-summary">
-        <div className="summary-card">
-          <h3>Total Penjualan</h3>
-          <p className="amount">Rp {totalSales.toLocaleString('id-ID')}</p>
-        </div>
-        <div className="summary-card">
-          <h3>Total Pengeluaran</h3>
-          <p className="amount">Rp {totalExpenses.toLocaleString('id-ID')}</p>
-        </div>
-        <div className="summary-card">
-          <h3>Laba Bersih</h3>
-          <p className={`amount ${profit >= 0 ? 'profit' : 'loss'}`}>
-            Rp {profit.toLocaleString('id-ID')}
-          </p>
-        </div>
+      <div className="transactions-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Jenis Transaksi</th>
+              <th>Kategori</th>
+              <th>Jumlah</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTransactions.map((transaction, index) => (
+              <tr key={index}>
+                <td>{transaction.tanggal}</td>
+                <td>{transaction.jenis_transaksi}</td>
+                <td>{transaction.kategori_transaksi}</td>
+                <td>Rp {transaction.jumlah.toLocaleString('id-ID')}</td>
+                <td>{transaction.keterangan}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <div className="report-content">
-        {reportType === 'sales' && (
-          <div className="sales-report">
-            <div className="chart-container">
-              <div className="chart-header">
-                <h2><FaChartLine /> Grafik Penjualan Harian</h2>
-              </div>
-              <div className="chart-placeholder">
-                {/* In a real app, this would be a chart component */}
-                <div className="mock-chart">
-                  {salesData.map((item, index) => (
-                    <div 
-                      key={index} 
-                      className="chart-bar" 
-                      style={{ 
-                        height: `${(item.amount / 1500000) * 100}%`,
-                        left: `${(index / salesData.length) * 100}%`
-                      }}
-                      title={`${new Date(item.date).toLocaleDateString('id-ID')}: Rp ${item.amount.toLocaleString('id-ID')}`}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="sales-table">
-              <h3>Detail Penjualan Harian</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Jumlah Transaksi</th>
-                    <th>Total Penjualan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salesData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{new Date(item.date).toLocaleDateString('id-ID')}</td>
-                      <td>{Math.floor(item.amount / 50000)}</td>
-                      <td>Rp {item.amount.toLocaleString('id-ID')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        <div className="report-actions">
+          <button onClick={handleDownloadPDF} className="download-btn pdf">
+            Unduh PDF
+          </button>
+          <button onClick={handleDownloadExcel} className="download-btn excel">
+            Unduh Excel
+          </button>
+          <button onClick={handlePrint} className="download-btn print">
+            Cetak
+          </button>
+        </div>
 
-        {reportType === 'products' && (
-          <div className="products-report">
-            <div className="chart-container">
-              <div className="chart-header">
-                <h2><FaChartBar /> Penjualan per Produk</h2>
-              </div>
-              <div className="chart-placeholder">
-                {/* In a real app, this would be a chart component */}
-                <div className="mock-horizontal-chart">
-                  {productSalesData.map((item, index) => (
-                    <div key={index} className="chart-row">
-                      <div className="chart-label">{item.product}</div>
-                      <div 
-                        className="chart-bar-horizontal" 
-                        style={{ width: `${(item.quantity / 120) * 100}%` }}
-                        title={`${item.quantity} item`}
-                      ></div>
-                      <div className="chart-value">{item.quantity}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="products-table">
-              <h3>Detail Penjualan Produk</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Produk</th>
-                    <th>Jumlah Terjual</th>
-                    <th>Total Pendapatan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productSalesData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.product}</td>
-                      <td>{item.quantity}</td>
-                      <td>Rp {item.revenue.toLocaleString('id-ID')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {reportType === 'expenses' && (
-          <div className="expenses-report">
-            <div className="chart-container">
-              <div className="chart-header">
-                <h2><FaChartPie /> Distribusi Pengeluaran</h2>
-              </div>
-              <div className="chart-placeholder">
-                {/* In a real app, this would be a pie chart component */}
-                <div className="mock-pie-chart">
-                  {expenseData.map((item, index) => (
-                    <div 
-                      key={index} 
-                      className="pie-segment" 
-                      style={{ 
-                        transform: `rotate(${index * 60}deg)`,
-                        backgroundColor: `hsl(${index * 60}, 70%, 60%)`
-                      }}
-                      title={`${item.category}: Rp ${item.amount.toLocaleString('id-ID')}`}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="expenses-table">
-              <h3>Detail Pengeluaran</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Kategori</th>
-                    <th>Jumlah</th>
-                    <th>Persentase</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expenseData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.category}</td>
-                      <td>Rp {item.amount.toLocaleString('id-ID')}</td>
-                      <td>{((item.amount / totalExpenses) * 100).toFixed(1)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {reportType === 'profit' && (
-          <div className="profit-report">
-            <div className="profit-summary">
-              <h2>Ringkasan Laba/Rugi</h2>
-              <div className="profit-details">
-                <div className="profit-item">
-                  <span>Total Pendapatan:</span>
-                  <span>Rp {totalSales.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="profit-item">
-                  <span>Total Pengeluaran:</span>
-                  <span>Rp {totalExpenses.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="profit-divider"></div>
-                <div className="profit-item total">
-                  <span>Laba Bersih:</span>
-                  <span className={profit >= 0 ? 'profit' : 'loss'}>
-                    Rp {profit.toLocaleString('id-ID')}
-                  </span>
-                </div>
-                <div className="profit-item">
-                  <span>Margin Keuntungan:</span>
-                  <span>{((profit / totalSales) * 100).toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <AddTransactionOverlay
+          isOpen={showAddTransaction}
+          onClose={() => setShowAddTransaction(false)}
+          onTransactionAdded={handleTransactionAdded}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
-import { useState } from 'react';
-import { FaSearch, FaFilter, FaEye, FaFileInvoice } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaSearch, FaFilter, FaFilePdf, FaFileExcel, FaPrint, FaEye, FaFileInvoice } from 'react-icons/fa';
+import Header from '../components/Header';
+import CustomDatePicker from '../components/CustomDatePicker';
 import '../styles/Transactions.css';
 
 const Transactions = () => {
-  const [transactions, setTransactions] = useState([
+  const transactions = [
     { 
       id: 'TRX-001', 
       date: '2025-05-21', 
@@ -65,26 +67,15 @@ const Transactions = () => {
       paymentMethod: 'QRIS',
       status: 'Completed'
     },
-  ]);
-
+  ];
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDate, setFilterDate] = useState('');
+  const [filterDate, setFilterDate] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
-  const handleDateFilter = (e) => {
-    setFilterDate(e.target.value);
-  };
-
-  const filteredTransactions = transactions.filter(transaction => 
-    (transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     transaction.customer.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (filterDate === '' || transaction.date === filterDate)
-  );
 
   const viewTransactionDetails = (transaction) => {
     setSelectedTransaction(transaction);
@@ -93,10 +84,23 @@ const Transactions = () => {
 
   const closeDetails = () => {
     setShowDetails(false);
+    setSelectedTransaction(null);
   };
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = 
+      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.customer.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDate = filterDate ? transaction.date === filterDate.toISOString().split('T')[0] : true;
+
+    return matchesSearch && matchesDate;
+  });
 
   return (
     <div className="transactions-page">
+      <Header title="Riwayat Transaksi" />
+      
       <div className="transactions-header">
         <h1>Riwayat Transaksi</h1>
       </div>
@@ -113,10 +117,14 @@ const Transactions = () => {
         </div>
         <div className="date-filter">
           <FaFilter className="filter-icon" />
-          <input 
-            type="date" 
-            value={filterDate}
-            onChange={handleDateFilter}
+          <CustomDatePicker
+            selected={filterDate}
+            onChange={setFilterDate}
+            dateFormat="dd MMMM yyyy"
+            locale="id"
+            isClearable
+            placeholderText="Filter berdasarkan tanggal"
+            className="form-control"
           />
         </div>
       </div>
@@ -202,14 +210,18 @@ const Transactions = () => {
                   <tfoot>
                     <tr>
                       <td colSpan="3" className="total-label">Total</td>
-                      <td className="total-amount">Rp {selectedTransaction.total.toLocaleString('id-ID')}</td>
+                      <td className="total-amount">
+                        Rp {selectedTransaction.total.toLocaleString('id-ID')}
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
             </div>
             <div className="modal-footer">
-              <button className="print-button">Cetak Struk</button>
+              <button className="print-button">
+                <FaPrint /> Cetak Struk
+              </button>
             </div>
           </div>
         </div>

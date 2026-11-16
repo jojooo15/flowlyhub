@@ -1,188 +1,257 @@
-import { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaPlus, FaEdit, FaChartLine } from 'react-icons/fa';
+import Header from '../components/Header';
+import AddProductOverlay from '../components/AddProductOverlay';
+import EditProductOverlay from '../components/EditProductOverlay';
+import LoadingSpinner from '../components/LoadingSpinner';
+import api from '../services/api';
 import '../styles/Products.css';
 
 const Products = () => {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Nasi Goreng', category: 'Makanan', price: 15000, stock: 0 },
-    { id: 2, name: 'Mie Goreng', category: 'Makanan', price: 12000, stock: 0 },
-    { id: 3, name: 'Es Teh', category: 'Minuman', price: 5000, stock: 20 },
-    { id: 4, name: 'Es Jeruk', category: 'Minuman', price: 6000, stock: 15 },
-    { id: 5, name: 'Ayam Goreng', category: 'Makanan', price: 18000, stock: 10 },
-    { id: 6, name: 'Soto Ayam', category: 'Makanan', price: 15000, stock: 0 },
-    { id: 7, name: 'Kopi', category: 'Minuman', price: 7000, stock: 25 },
-    { id: 8, name: 'Teh Botol', category: 'Minuman', price: 6000, stock: 30 },
-  ]);
-
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    category: '',
-    price: '',
-    stock: ''
-  });
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.stock.getAll();
+      
+      if (response && response.success && response.data && response.data.stocks) {
+        const stocks = response.data.stocks;
+
+        const updatedStocks = await Promise.all(
+          stocks.map(async (item) => {
+            const status = await calculateStatusAi(item);
+            return {
+              ...item,
+              status: status,
+            };
+          })
+        );
+
+        setProducts(updatedStocks);
+
+      } else {
+        throw new Error('Failed to load products data');
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      if (err.message === 'Authentication required') {
+        window.location.href = '/login';
+      } else {
+        setError(err.message || 'Failed to load products');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = (
+      product.kode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.nama_barang?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const matchesFilter = filter === 'all' || product.kategori === filter;
+    const matchesStatus = statusFilter === 'all' || product.status === statusFilter;
+    
+    return matchesSearch && matchesFilter && matchesStatus;
+  });
 
-  const handleAddProduct = () => {
-    setShowAddForm(true);
+  const calculateStatus = (item) => {
+    const stokAkhir = (parseInt(item.stok_awal || 0) + parseInt(item.masuk || 0)) - parseInt(item.keluar || 0);
+    const minimum = parseInt(item.minimum_stock || 10);
+    
+    if (stokAkhir <= minimum * 0.5) return 'STOK BERISIKO';
+    if (stokAkhir <= minimum) return 'STOK MENIPIS';
+    if (stokAkhir >= minimum * 2) return 'STOK STABIL';
+    return 'STOK AMAN';
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct({
-      ...newProduct,
-      [name]: value
-    });
+  const calculateStatusAi = async (item) => {
+    const response = await api.stock.predict({"code":item.kode});
+    console.log(response.data.status)
+    return response.data.status;
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'STOK STABIL': return 'bg-blue-500';
+      case 'STOK AMAN': return 'bg-green-500';
+      default: return 'bg-red-500';
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    
-    const productToAdd = {
-      id: newId,
-      name: newProduct.name,
-      category: newProduct.category,
-      price: parseFloat(newProduct.price),
-      stock: parseInt(newProduct.stock)
-    };
-    
-    setProducts([...products, productToAdd]);
-    setNewProduct({ name: '', category: '', price: '', stock: '' });
+  const handleEdit = (product) => {
+    setSelectedProduct(product);
+    setShowEditForm(true);
+  };
+
+  const handleAddSuccess = () => {
     setShowAddForm(false);
+    fetchProducts();
   };
 
-  const handleDeleteProduct = (id) => {
-    setProducts(products.filter(product => product.id !== id));
+  const handleEditSuccess = () => {
+    setShowEditForm(false);
+    setSelectedProduct(null);
+    fetchProducts();
   };
+
+  if (error) {
+    return <div className="text-red-500 text-center mt-5">Error: {error}</div>;
+  }
 
   return (
-    <div className="products-page">
-      <div className="products-header">
-        <h1>Manajemen Produk</h1>
-        <button className="add-button" onClick={handleAddProduct}>
-          <FaPlus /> Tambah Produk
+    <div className="products-container">
+      <Header title="Stok Barang" />
+      
+      <div className="products-controls">
+        <button 
+          className="add-product-btn"
+          onClick={() => setShowAddForm(true)}
+        >
+          <FaPlus /> Tambah Barang
         </button>
-      </div>
+        <div className='filter-option'>
+            <select 
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">Semua</option>
+              <option value="bahan-baku">Bahan Baku</option>
+              <option value="minuman">Minuman</option>
+              <option value="makanan">Makanan</option>
+            </select>
 
-      <div className="search-bar">
-        <FaSearch className="search-icon" />
-        <input 
-          type="text" 
-          placeholder="Cari produk..." 
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">Semua</option>
+              <option value="STOK STABIL">STOK STABIL</option>
+              <option value="STOK AMAN">STOK AMAN</option>
+              <option value="STOK BERISIKO ⚠">STOK BERISIKO ⚠</option>
+            </select>
+        </div>
+      </div>
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Cari berdasarkan kode atau nama barang..."
           value={searchTerm}
           onChange={handleSearch}
         />
       </div>
 
-      {showAddForm && (
-        <div className="add-product-form">
-          <h2>Tambah Produk Baru</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Nama Produk</label>
-              <input 
-                type="text" 
-                name="name" 
-                value={newProduct.name} 
-                onChange={handleInputChange} 
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <label>Kategori</label>
-              <select 
-                name="category" 
-                value={newProduct.category} 
-                onChange={handleInputChange} 
-                required
-              >
-                <option value="">Pilih Kategori</option>
-                <option value="Makanan">Makanan</option>
-                <option value="Minuman">Minuman</option>
-                <option value="Snack">Snack</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Harga (Rp)</label>
-              <input 
-                type="number" 
-                name="price" 
-                value={newProduct.price} 
-                onChange={handleInputChange} 
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <label>Stok</label>
-              <input 
-                type="number" 
-                name="stock" 
-                value={newProduct.stock} 
-                onChange={handleInputChange} 
-                required 
-              />
-            </div>
-            <div className="form-buttons">
-              <button type="submit" className="submit-button">Simpan</button>
-              <button 
-                type="button" 
-                className="cancel-button" 
-                onClick={() => setShowAddForm(false)}
-              >
-                Batal
-              </button>
-            </div>
-          </form>
+
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="table-container">
+          <table className="products-table">
+            <thead>
+              <tr>
+                <th>Kode Barang</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Satuan</th>
+                <th>Stok Awal</th>
+                <th>Masuk</th>
+                <th>Keluar</th>
+                <th>Stok Akhir</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.map((product) => {
+                const stokAkhir = (
+                  parseInt(product.stok_awal || 0) + 
+                  parseInt(product.masuk || 0) - 
+                  parseInt(product.keluar || 0)
+                );
+                const status = product.status;
+                const statusColor = getStatusColor(status);
+
+                return (
+                  <tr key={product._id}>
+                    <td>{product.kode}</td>
+                    <td>{product.nama_barang}</td>
+                    <td>{product.kategori}</td>
+                    <td>{product.satuan}</td>
+                    <td>{product.stok_awal}</td>
+                    <td>{product.masuk}</td>
+                    <td>{product.keluar}</td>
+                    <td>{stokAkhir}</td>
+                    <td>
+                      <span className={`status-badge ${statusColor}`}>
+                        {status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="edit-btn"
+                          onClick={() => handleEdit(product)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="chart-btn"
+                          onClick={() => {
+                            setSelectedProduct(product);
+                          }}
+                        >
+                          <FaChartLine />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
-      <div className="products-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nama Produk</th>
-              <th>Kategori</th>
-              <th>Harga</th>
-              <th>Stok</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map(product => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{product.category}</td>
-                <td>Rp {product.price.toLocaleString('id-ID')}</td>
-                <td>{product.stock}</td>
-                <td className="action-buttons">
-                  <button className="edit-button">
-                    <FaEdit />
-                  </button>
-                  <button 
-                    className="delete-button"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {showAddForm && (
+        <AddProductOverlay
+          isOpen={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          onProductAdded={handleAddSuccess}
+        />
+      )}
+
+      {showEditForm && selectedProduct && (
+        <EditProductOverlay
+          isOpen={showEditForm}
+          onClose={() => {
+            setShowEditForm(false);
+            setSelectedProduct(null);
+          }}
+          product={selectedProduct}
+          onProductUpdated={handleEditSuccess}
+        />
+      )}
     </div>
   );
 };

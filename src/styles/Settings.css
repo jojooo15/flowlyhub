@@ -1,5 +1,13 @@
 .settings-page {
-  padding: 20px;
+  padding: 32px;
+  background-color: #F8F9FA;
+  min-height: 100vh;
+  margin-left: 80px;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.expanded ~ .settings-page {
+  margin-left: 280px;
 }
 
 .settings-header {
@@ -51,10 +59,10 @@
 }
 
 .tab-button.active {
-  background-color: #e3f2fd;
-  color: #2196F3;
+  background-color: #E8EBF0;
+  color: #31456A;
   font-weight: 500;
-  border-left: 3px solid #2196F3;
+  border-left: 3px solid #31456A;
 }
 
 .settings-content {
@@ -150,7 +158,7 @@
 }
 
 .upload-button {
-  background-color: #2196F3;
+  background-color: #31456A;
   color: white;
   border: none;
   border-radius: 4px;
@@ -161,7 +169,7 @@
 }
 
 .upload-button:hover {
-  background-color: #1976D2;
+  background-color: #243550;
 }
 
 .save-button {
@@ -266,7 +274,7 @@
 }
 
 .action-button {
-  background-color: #2196F3;
+  background-color: #31456A;
   color: white;
   border: none;
   border-radius: 4px;
@@ -278,7 +286,7 @@
 }
 
 .action-button:hover {
-  background-color: #1976D2;
+  background-color: #243550;
 }
 
 .action-button.danger {
@@ -290,6 +298,15 @@
 }
 
 @media (max-width: 768px) {
+  .settings-page {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .sidebar.expanded ~ .settings-page {
+    margin-left: 0;
+  }
+  
   .settings-container {
     flex-direction: column;
   }

@@ -1,0 +1,502 @@
+/* Mobile Consistency Framework for FlowlyHub */
+/* Ensuring all pages have consistent mobile experience */
+
+/* ===== GLOBAL MOBILE RESET ===== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  /* Prevent zoom on orientation change */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+  /* Better font rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== MOBILE VIEWPORT HANDLING ===== */
+.main-content,
+.dashboard,
+.products-page,
+.reports,
+.transactions-page,
+.settings-page,
+.attendance,
+.employees-page,
+.profile-page,
+.history-page {
+  /* Ensure no horizontal overflow */
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ===== CONSISTENT MOBILE BREAKPOINTS ===== */
+/* Extra Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  /* Page containers */
+  .main-content,
+  .dashboard,
+  .products-page,
+  .reports,
+  .transactions-page,
+  .settings-page,
+  .attendance,
+  .employees-page,
+  .profile-page,
+  .history-page {
+    padding: 12px !important;
+    margin-left: 0 !important;
+  }
+  
+  /* Page headers */
+  .page-header,
+  .dashboard-header,
+  .products-header,
+  .reports-header,
+  .transactions-header,
+  .settings-header,
+  .attendance-header,
+  .employees-header,
+  .profile-header,
+  .history-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  /* Page titles */
+  .page-header h1,
+  .dashboard-header h1,
+  .products-header h1,
+  .reports-header h1,
+  .transactions-header h1,
+  .settings-header h1,
+  .attendance-header h1,
+  .employees-header h1,
+  .profile-header h1,
+  .history-header h1 {
+    font-size: 1.25rem !important;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  
+  /* Action buttons in headers */
+  .header-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .header-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Cards and containers */
+  .card,
+  .summary-card,
+  .dashboard-section,
+  .products-table,
+  .transactions-table,
+  .reports-table,
+  .attendance-table,
+  .employees-table {
+    margin: 0 -12px 12px;
+    border-radius: 0;
+  }
+  
+  /* Grid layouts */
+  .summary-cards,
+  .dashboard-grid,
+  .products-grid,
+  .quick-actions {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  
+  /* Forms */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  /* Tables */
+  .table-container {
+    margin: 0 -12px;
+    border-radius: 0;
+  }
+  
+  .table-container table {
+    min-width: 500px;
+  }
+  
+  /* Buttons */
+  .btn,
+  .button,
+  .add-button,
+  .filter-btn,
+  .download-btn,
+  .action-button {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+  
+  /* Full-width buttons on very small screens */
+  .btn-primary,
+  .btn-secondary,
+  .button-primary,
+  .button-secondary {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+/* Small Mobile (≤767px) */
+@media (max-width: 767px) {
+  /* Sidebar adjustments */
+  .sidebar.expanded ~ .main-content,
+  .sidebar.expanded ~ .dashboard,
+  .sidebar.expanded ~ .products-page,
+  .sidebar.expanded ~ .reports,
+  .sidebar.expanded ~ .transactions-page,
+  .sidebar.expanded ~ .settings-page,
+  .sidebar.expanded ~ .attendance,
+  .sidebar.expanded ~ .employees-page,
+  .sidebar.expanded ~ .profile-page,
+  .sidebar.expanded ~ .history-page {
+    margin-left: 0 !important;
+  }
+  
+  /* Page containers */
+  .main-content,
+  .dashboard,
+  .products-page,
+  .reports,
+  .transactions-page,
+  .settings-page,
+  .attendance,
+  .employees-page,
+  .profile-page,
+  .history-page {
+    padding: 16px;
+    margin-left: 0;
+  }
+  
+  /* Grid adjustments */
+  .summary-cards,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  /* Filter sections */
+  .filters,
+  .filters-container,
+  .search-filter-section {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .search-box,
+  .date-filter,
+  .period-filter {
+    max-width: none;
+    width: 100%;
+  }
+  
+  /* Table improvements */
+  .transactions-table,
+  .products-table,
+  .reports-table,
+  .attendance-table,
+  .employees-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .transactions-table table,
+  .products-table table,
+  .reports-table table,
+  .attendance-table table,
+  .employees-table table {
+    min-width: 600px;
+  }
+  
+  /* Action buttons in tables */
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* Modal adjustments */
+  .modal-content {
+    width: 95%;
+    max-width: 400px;
+    margin: 20px;
+  }
+  
+  /* Settings tabs */
+  .settings-tabs {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tab-button {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+/* ===== TOUCH-FRIENDLY ELEMENTS ===== */
+/* Ensure all interactive elements meet minimum touch target size */
+a, button, [role="button"], 
+input[type="submit"], input[type="button"],
+.btn, .button, .add-button, .filter-btn,
+.action-button, .tab-button, .nav-link {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== FORM CONSISTENCY ===== */
+/* Prevent zoom on iOS */
+input, select, textarea {
+  font-size: 16px !important;
+  min-height: 44px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--divider-color, #e0e0e0);
+  background: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #007bff);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* ===== TYPOGRAPHY CONSISTENCY ===== */
+@media (max-width: 767px) {
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+  h4, h5, h6 { font-size: 1rem; }
+  
+  .page-title { font-size: 1.25rem; }
+  .section-title { font-size: 1.125rem; }
+  .card-title { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.25rem; }
+  h2 { font-size: 1.125rem; }
+  h3 { font-size: 1rem; }
+  
+  .page-title { font-size: 1.125rem; }
+  .section-title { font-size: 1rem; }
+}
+
+/* ===== NAVIGATION CONSISTENCY ===== */
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(44, 62, 80, 0.08);
+  color: #2C3E50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 480px) {
+  .sidebar-toggle-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+/* ===== ANIMATION PERFORMANCE ===== */
+/* Optimize animations for mobile */
+* {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.sidebar,
+.modal,
+.dropdown,
+.tooltip {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* ===== SCROLLING IMPROVEMENTS ===== */
+/* Smooth scrolling */
+.table-container,
+.modal-content,
+.sidebar-menu {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for mobile */
+.table-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 2px;
+}
+
+/* ===== LOADING STATES ===== */
+/* Consistent loading indicators */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-color, #007bff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== ERROR STATES ===== */
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #fcc;
+}
+
+/* ===== SUCCESS STATES ===== */
+.success-message {
+  background: #efe;
+  color: #363;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #cfc;
+}
+
+/* ===== UTILITY CLASSES FOR CONSISTENCY ===== */
+.mobile-full-width {
+  width: 100% !important;
+}
+
+.mobile-text-center {
+  text-align: center !important;
+}
+
+.mobile-hide {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .desktop-hide {
+    display: none !important;
+  }
+}
+
+/* Stack elements vertically on mobile */
+.mobile-stack {
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+/* Remove margins on mobile */
+.mobile-no-margin {
+  margin: 0 !important;
+}
+
+/* Full bleed on mobile */
+.mobile-full-bleed {
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 480px) {
+  .mobile-full-bleed {
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+/* Better focus indicators for mobile */
+*:focus {
+  outline: 2px solid var(--primary-color, #007bff);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn, .button {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  .summary-card,
+  .dashboard-section,
+  .products-table,
+  .transactions-table,
+  .reports-table {
+    background: #1f2937;
+    color: #f9fafb;
+    border-color: #374151;
+  }
+  
+  input, select, textarea {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+}

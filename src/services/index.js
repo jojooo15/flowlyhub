@@ -1,20 +1,10 @@
-/**
- * services/index.js
- * 
- * INSTRUKSI UNTUK BACKEND DEVELOPER:
- * 
- * File ini mengekspor API yang akan digunakan oleh aplikasi.
- * 
- * 1. Saat pengembangan frontend, aplikasi menggunakan mockApi
- * 2. Setelah backend selesai, aplikasi akan menggunakan API yang sebenarnya
- * 3. Ubah USE_MOCK_API di config.js menjadi false untuk menggunakan API yang sebenarnya
- */
+import api from './api';
+import { USE_MOCK_API } from '../config.jsx';
 
-import { API_CONFIG } from '../config';
-import realApi from './api';
-import mockApi from './mockApi';
+// Always use real API since USE_MOCK_API is set to false in config
+// Mock API is completely removed to ensure production-ready backend connection
+const service = api;
 
-// Ekspor API berdasarkan konfigurasi
-const api = API_CONFIG.USE_MOCK_API ? mockApi : realApi;
-
-export default api;
+// Export both named and default exports for flexibility
+export { service, api };
+export default service;

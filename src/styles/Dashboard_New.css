@@ -1,0 +1,389 @@
+/* Dashboard Container */
+.dashboard {
+  padding: 32px;
+  background-color: #F8F9FA;
+  min-height: 100vh;
+  margin-left: 80px;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.expanded ~ .dashboard {
+  margin-left: 280px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  margin-bottom: 32px;
+}
+
+.dashboard-header .title {
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  color: #333333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.date-filter {
+  margin-top: 16px;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  margin-top: 24px;
+}
+
+/* Loading and Error States */
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+}
+
+.dashboard-loading p {
+  margin-top: 16px;
+  color: #666666;
+  font-size: 16px;
+}
+
+.error-message {
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #DC2626;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #EEEEEE;
+  transition: all 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.summary-card h3 {
+  font-size: 14px;
+  color: #666666;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.summary-card .amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: #31456A;
+  margin: 0;
+}
+
+/* Recent Activities */
+.recent-activities {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #EEEEEE;
+  margin-bottom: 32px;
+}
+
+.recent-activities h2 {
+  font-size: 18px;
+  color: #333333;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.activities-list {
+  margin-bottom: 16px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #F0F0F0;
+  transition: all 0.2s;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:hover {
+  background-color: #F8F9FA;
+  margin: 0 -12px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #666666;
+  min-width: 120px;
+}
+
+.activity-type {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.activity-user {
+  font-size: 14px;
+  color: #31456A;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.activity-detail {
+  font-size: 14px;
+  color: #666666;
+  flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .sidebar.expanded ~ .dashboard {
+    margin-left: 0;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 20px;
+  }
+  
+  .summary-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .summary-card {
+    padding: 16px;
+  }
+  
+  .summary-card h3 {
+    font-size: 12px;
+  }
+  
+  .summary-card .amount {
+    font-size: 24px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .dashboard-section {
+    padding: 16px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .section-header h2 {
+    font-size: 18px;
+  }
+  
+  .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .activity-time,
+  .activity-type,
+  .activity-user {
+    min-width: auto;
+    font-size: 14px;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .action-btn {
+    padding: 16px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 12px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 18px;
+  }
+  
+  .summary-card {
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .summary-card .amount {
+    font-size: 20px;
+  }
+  
+  .dashboard-section {
+    padding: 12px;
+  }
+  
+  .section-header h2 {
+    font-size: 16px;
+  }
+  
+  .activity-item {
+    padding: 8px;
+  }
+  
+  .action-btn {
+    padding: 12px;
+    min-height: 44px;
+  }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #31456A;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* AI Analytics Section */
+.ai-analytics {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #EEEEEE;
+}
+
+.ai-analytics h2 {
+  font-size: 18px;
+  color: #333333;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-analytics .subtitle {
+  font-size: 14px;
+  color: #666666;
+  margin: -10px 0 20px 0;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.analytics-card {
+  border: 1px solid #EEEEEE;
+  border-radius: 8px;
+  padding: 20px;
+  background: #FAFBFC;
+}
+
+.analytics-card h3 {
+  font-size: 14px;
+  color: #666666;
+  margin: 0 0 16px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.ml-powered {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.auto-optimized {
+  background-color: #E8F5E8;
+  color: #388E3C;
+}
+
+.analytics-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #31456A;
+  margin: 8px 0;
+}
+
+.analytics-description {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
